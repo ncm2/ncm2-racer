@@ -83,10 +83,13 @@ class Source(Ncm2Source):
                 menu = menu[len(os.environ["RUST_SRC_PATH"]):]
 
             match['menu'] = menu
+            match = self.match_formalize(ctx, match)
 
             snippet = fields[1]
             if snippet != word:
-                match['snippet'] = snippet
+                ud = match['user_data']
+                ud['is_snippet'] = 1
+                ud['snippet'] = snippet
 
             matches.append(match)
 
