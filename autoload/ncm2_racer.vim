@@ -5,7 +5,8 @@ let s:loaded = 1
 
 let g:ncm2_racer#proc = yarp#py3('ncm2_racer')
 
-let g:ncm2_racer#source = get(g:, 'ncm2_racer#source', {
+let g:ncm2_racer#source = extend(
+            \ get(g:, 'ncm2_racer#source', {}), {
             \ 'name': 'racer',
             \ 'priority': 9,
             \ 'mark': 'rs',
@@ -16,11 +17,7 @@ let g:ncm2_racer#source = get(g:, 'ncm2_racer#source', {
             \ 'complete_pattern': ['\.', '::'],
             \ 'on_complete': 'ncm2_racer#on_complete',
             \ 'on_warmup': 'ncm2_racer#on_warmup',
-            \ })
-
-let g:ncm2_racer#source = extend(g:ncm2_racer#source,
-            \ get(g:, 'ncm2_racer#source_override', {}),
-            \ 'force')
+            \ }, 'keep')
 
 func! ncm2_racer#init()
     call ncm2#register_source(g:ncm2_racer#source)
