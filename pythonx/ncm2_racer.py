@@ -2,29 +2,34 @@
 
 import vim
 from ncm2 import Ncm2Source, getLogger, Popen
-import re
 import os
 import glob
 import subprocess
 
-
 logger = getLogger(__name__)
 
-class Source(Ncm2Source):
 
+class Source(Ncm2Source):
     def check(self):
         from distutils.spawn import find_executable
         if not find_executable("racer"):
-            self.nvim.call('ncm2_racer#error', 'Can not find racer for completion, you need https://github.com/phildawes/racer')
+            self.nvim.call(
+                'ncm2_racer#error',
+                ('Can not find racer for completion, '
+                 'please check out https://github.com/racer-rust/racer'))
         if not self._check_rust_src_path():
-            self.nvim.call('ncm2_racer#error', '$RUST_SRC_PATH not defined, please read https://github.com/phildawes/racer#configuration' )
+            self.nvim.call('ncm2_racer#error', (
+                '$RUST_SRC_PATH not defined, '
+                'please read https://github.com/racer-rust/racer#configuration'
+            ))
 
     def _check_rust_src_path(self):
         if "RUST_SRC_PATH" in os.environ:
             return os.environ["RUST_SRC_PATH"]
         # auto detect, if user already run `rustup component add rust-src`
-        found = glob.glob(os.path.expanduser(
-            "~/.rustup/toolchains/*/lib/rustlib/src/rust/src"))
+        found = glob.glob(
+            os.path.expanduser(
+                "~/.rustup/toolchains/*/lib/rustlib/src/rust/src"))
         if found:
             logger.info("detect RUST_SRC_PATH as [%s]", found[0])
             os.environ["RUST_SRC_PATH"] = found[0]
@@ -42,11 +47,16 @@ class Source(Ncm2Source):
         filepath = ctx['filepath']
         startccol = ctx['startccol']
 
-        args = ['racer', 'complete-with-snippet', str(lnum), str(bcol - 1), filepath, '-']
-        proc = Popen(args=args,
-                                stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.DEVNULL)
+        args = [
+            'racer', 'complete-with-snippet',
+            str(lnum),
+            str(bcol - 1), filepath, '-'
+        ]
+        proc = Popen(
+            args=args,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL)
 
         result, errs = proc.communicate(src, timeout=30)
 
@@ -79,7 +89,8 @@ class Source(Ncm2Source):
             match = dict(word=word)
 
             menu = fields[6]
-            if "RUST_SRC_PATH" in os.environ and menu.startswith(os.environ["RUST_SRC_PATH"]):
+            if "RUST_SRC_PATH" in os.environ and menu.startswith(
+                    os.environ["RUST_SRC_PATH"]):
                 menu = menu[len(os.environ["RUST_SRC_PATH"]):]
 
             match['menu'] = menu
@@ -96,6 +107,7 @@ class Source(Ncm2Source):
         logger.info("matches: [%s]", matches)
 
         self.complete(ctx, startccol, matches)
+
 
 source = Source(vim)
 
