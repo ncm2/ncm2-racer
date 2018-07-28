@@ -3,11 +3,15 @@ if get(s:, 'loaded', 0)
 endif
 let s:loaded = 1
 
-let g:ncm2_racer#proc = yarp#py3('ncm2_racer')
+let g:ncm2_racer#proc = yarp#py3({
+    \ 'module': 'ncm2_racer',
+    \ 'on_load': { -> ncm2#set_ready(g:ncm2_racer#source)}
+    \ })
 
 let g:ncm2_racer#source = extend(
             \ get(g:, 'ncm2_racer#source', {}), {
             \ 'name': 'racer',
+            \ 'ready': 0,
             \ 'priority': 9,
             \ 'mark': 'rs',
             \ 'early_cache': 1,
